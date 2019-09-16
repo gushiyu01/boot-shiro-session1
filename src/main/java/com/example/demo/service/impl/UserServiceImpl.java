@@ -4,6 +4,8 @@ import com.example.demo.common.PasswordUtils;
 import com.example.demo.common.entity.User;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private RedisTemplate<String, User> redisTemplate;
+
+    @Value("${server.port}")
+    private String port;
 
     @Override
     public void addUser(User user) {
@@ -37,7 +43,9 @@ public class UserServiceImpl implements UserService {
         List<Object> list = redisTemplate.boundHashOps("users").values();
         List<User> users = new ArrayList<>();
         list.forEach(u->{
-            users.add((User) u);
+            User u1 = (User) u;
+            u1.setShow(port);
+            users.add(u1);
         });
         return users;
     }
